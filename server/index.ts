@@ -1,6 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { setupVite, serveStatic } from "./vite";
 
 const app = express();
 app.use(express.json());
@@ -30,10 +30,10 @@ app.use((req, res, next) => {
       }
 
       log(logLine);
+      console.log(logLine);
     }
+    next();
   });
-
-  next();
 });
 
 (async () => {
@@ -58,13 +58,17 @@ app.use((req, res, next) => {
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
+  const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
   server.listen({
     port,
-    host: "0.0.0.0",
-    reusePort: true,
+    host: "localhost", // Changed from 0.0.0.0 to localhost for local development
+    // Removed reusePort option as it's not needed for local development
   }, () => {
     log(`serving on port ${port}`);
   });
 })();
+function log(message: string) {
+  // Simple logging to console with timestamp
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${message}`);
+}
