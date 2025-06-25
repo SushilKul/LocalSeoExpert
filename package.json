@@ -107,3 +107,10 @@
     "bufferutil": "^4.0.8"
   }
 }
+// ...existing code...
+"scripts": {
+  "dev": "vite",                // For local development
+  "build": "vite build",        // For building the app
+  "start": "node server/index.js" // For production (adjust entry if needed)
+},
+// ...existing code...
