@@ -27,7 +27,25 @@ npm install
 
 4. Set up the database:
 ```bash
-npm run db:push
+```bash
+# Create a migration file (if not already created)
+npm run db:generate
+
+# Apply database migrations
+npm run db:migrate
+```
+
+> **Note:**  
+> If you see an error like `Missing script: "db:migrate"`, ensure your `package.json` includes the following scripts under the `"scripts"` section:
+
+```json
+"scripts": {
+  "db:generate": "drizzle-kit generate:pg",
+  "db:migrate": "drizzle-kit push:pg"
+}
+```
+
+Replace the commands with your actual migration tool if different.
 ```
 
 ## Development
