@@ -1,0 +1,748 @@
+openapi: 3.0.3
+info:
+  title: LocalSEOExpert API (MVP - Mocked GBP)
+  version: 0.1.0
+  description: Mocked Google Business Profile–like endpoints for locations, reviews, posts, keywords, dashboard and auth.
+servers:
+  - url: https://api.localseoexpert.example.com/api/v1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      example:
+        message: "Invalid credentials"
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        name:
+          type: string
+      example:
+        id: "a1b2c3d4-e5f6-7a89-b012-3456789abcde"
+        email: "owner@example.com"
+        name: "Local Owner"
+    AuthRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: "owner@example.com"
+        password: "P@ssw0rd!"
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+        expiresIn:
+          type: integer
+      example:
+        accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        tokenType: "Bearer"
+        expiresIn: 3600
+    Location:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        accountId:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        website:
+          type: string
+        hours:
+          type: object
+          additionalProperties:
+            type: string
+        lat:
+          type: number
+          format: float
+        lng:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      example:
+        id: "loc_001"
+        accountId: "a1b2c3d4-e5f6-7a89-b012-3456789abcde"
+        name: "Acme Coffee - Downtown"
+        address: "123 Main St, Springfield, USA"
+        phone: "+1-555-0100"
+        website: "https://acmecoffee.example.com"
+        hours:
+          monday: "08:00-17:00"
+          tuesday: "08:00-17:00"
+        lat: 40.7128
+        lng: -74.0060
+        createdAt: "2025-10-13T08:00:00Z"
+    LocationList:
+      type: object
+      properties:
+        total:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+      example:
+        total: 2
+        items:
+          - $ref: '#/components/schemas/Location'
+    Review:
+      type: object
+      properties:
+        id:
+          type: string
+        locationId:
+          type: string
+        reviewerName:
+          type: string
+        rating:
+          type: integer
+        comment:
+          type: string
+        reply:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      example:
+        id: "rev_1001"
+        locationId: "loc_001"
+        reviewerName: "Jane Smith"
+        rating: 5
+        comment: "Great coffee and friendly staff!"
+        reply: "Thanks for visiting, Jane!"
+        createdAt: "2025-10-10T12:34:56Z"
+    PaginatedReviews:
+      type: object
+      properties:
+        page:
+          type: integer
+        perPage:
+          type: integer
+        total:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+      example:
+        page: 1
+        perPage: 20
+        total: 45
+        items:
+          - $ref: '#/components/schemas/Review'
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+        locationId:
+          type: string
+        summary:
+          type: string
+        cta:
+          type: string
+        type:
+          type: string
+        mediaUrl:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      example:
+        id: "post_2001"
+        locationId: "loc_001"
+        summary: "New seasonal latte—try today!"
+        cta: "Learn more"
+        type: "EVENT"
+        mediaUrl: "https://cdn.example.com/images/latte.jpg"
+        createdAt: "2025-10-01T09:00:00Z"
+    Keyword:
+      type: object
+      properties:
+        id:
+          type: string
+        locationId:
+          type: string
+        term:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      example:
+        id: "kw_3001"
+        locationId: "loc_001"
+        term: "best coffee near me"
+        createdAt: "2025-10-01T09:00:00Z"
+    RankSnapshot:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        rank:
+          type: integer
+      example:
+        date: "2025-10-13"
+        rank: 3
+    KeywordWithHistory:
+      allOf:
+        - $ref: '#/components/schemas/Keyword'
+        - type: object
+          properties:
+            history:
+              type: array
+              items:
+                $ref: '#/components/schemas/RankSnapshot'
+      example:
+        id: "kw_3001"
+        locationId: "loc_001"
+        term: "best coffee near me"
+        createdAt: "2025-10-01T09:00:00Z"
+        history:
+          - date: "2025-10-01"
+            rank: 7
+          - date: "2025-10-08"
+            rank: 5
+          - date: "2025-10-13"
+            rank: 3
+    DashboardMetrics:
+      type: object
+      properties:
+        locationId:
+          type: string
+        metrics:
+          type: object
+          properties:
+            views:
+              type: integer
+            searches:
+              type: integer
+            calls:
+              type: integer
+            websiteClicks:
+              type: integer
+        series:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              views:
+                type: integer
+      example:
+        locationId: "loc_001"
+        metrics:
+          views: 1240
+          searches: 980
+          calls: 42
+          websiteClicks: 118
+        series:
+          - date: "2025-10-11"
+            views: 380
+          - date: "2025-10-12"
+            views: 420
+          - date: "2025-10-13"
+            views: 440
+paths:
+
+  /auth/register:
+    post:
+      summary: Register new user (MVP simple)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      summary: Login and receive JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: Auth successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /locations:
+    get:
+      summary: List locations for the authenticated account (mocked)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Locations list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationList'
+    post:
+      summary: Create a new mocked location
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, address]
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+                phone:
+                  type: string
+                website:
+                  type: string
+                hours:
+                  type: object
+                  additionalProperties:
+                    type: string
+              example:
+                name: "Acme Coffee - Uptown"
+                address: "456 Elm St, Springfield, USA"
+                phone: "+1-555-0101"
+                website: "https://uptown.acmecoffee.example.com"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /locations/{locationId}:
+    get:
+      summary: Get single location details
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: locationId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Location details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update location basic info (persisted in MVP DB)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: locationId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+                phone:
+                  type: string
+                website:
+                  type: string
+                hours:
+                  type: object
+                  additionalProperties:
+                    type: string
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /locations/{locationId}/reviews:
+    get:
+      summary: List paginated reviews for a location (mocked)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: locationId
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Paginated reviews
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReviews'
+    post:
+      summary: Reply to a review (creates/saves reply in app DB)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reviewId, reply]
+              properties:
+                reviewId:
+                  type: string
+                reply:
+                  type: string
+              example:
+                reviewId: "rev_1001"
+                reply: "Thanks for the kind words!"
+      responses:
+        '200':
+          description: Reply saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /reviews/{reviewId}:
+    get:
+      summary: Get a single review (includes reply)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: reviewId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Review detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /locations/{locationId}/posts:
+    get:
+      summary: List posts for a location (mocked)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: locationId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Posts list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    post:
+      summary: Create a post for a location
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [summary, type]
+              properties:
+                summary:
+                  type: string
+                cta:
+                  type: string
+                type:
+                  type: string
+                  enum: [EVENT, OFFER, UPDATE]
+                mediaUrl:
+                  type: string
+              example:
+                summary: "Happy Hour 4-6pm"
+                cta: "Book now"
+                type: "OFFER"
+                mediaUrl: "https://cdn.example.com/happy-hour.jpg"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+  /posts/{postId}:
+    patch:
+      summary: Update a post
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: postId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                summary:
+                  type: string
+                cta:
+                  type: string
+                mediaUrl:
+                  type: string
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a post
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: postId
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted (no content)
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /locations/{locationId}/keywords:
+    get:
+      summary: List tracked keywords for a location
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: locationId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Keywords with simple metadata (no history)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Keyword'
+    post:
+      summary: Add a keyword to track (MVP: simulated ranks)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [term]
+              properties:
+                term:
+                  type: string
+              example:
+                term: "nearby coffee shop"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Keyword'
+
+  /keywords/{keywordId}/history:
+    get:
+      summary: Get simulated rank history for a keyword
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: keywordId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Keyword with history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeywordWithHistory'
+
+  /dashboard/{locationId}:
+    get:
+      summary: Aggregated mocked dashboard metrics for a location
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: locationId
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: days
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Metrics and short historical series
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardMetrics'
+
+  /health:
+    get:
+      summary: Service health (no auth)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type:

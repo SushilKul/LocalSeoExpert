@@ -1,11 +1,44 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
+import helmet from "helmet";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic } from "./vite";
 
+const log = (...args: any[]) => {
+  // simple file-local logger; replace with a centralized logger if you add one to ./vite
+  console.log(...args);
+};
+
 const app = express();
+
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https://*"],
+      connectSrc: ["'self'", "https://*"]
+    }
+  }
+}));
+
+// CORS configuration
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://yourdomain.com'] // Replace with your production domain
+    : ['http://localhost:3000', 'http://localhost:5000'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Request logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -30,45 +63,44 @@ app.use((req, res, next) => {
       }
 
       log(logLine);
-      console.log(logLine);
     }
-    next();
   });
+
+  next();
 });
 
 (async () => {
   const server = await registerRoutes(app);
 
+  // Global error handler
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
+    
+    console.error(`[ERROR] ${err.stack || err}`);
+    
+    res.status(status).json({ 
+      error: {
+        message,
+        status,
+        timestamp: new Date().toISOString()
+      }
+    });
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // Setup Vite in development or serve static files in production
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
+  // Configure port from environment or use default
   const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
   server.listen({
     port,
-    host: "localhost", // Changed from 0.0.0.0 to localhost for local development
-    // Removed reusePort option as it's not needed for local development
+    host: "0.0.0.0", // Allow connections from any IP
   }, () => {
-    log(`serving on port ${port}`);
+    log(`Server running in ${app.get("env")} mode on port ${port}`);
   });
 })();
-function log(message: string) {
-  // Simple logging to console with timestamp
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${message}`);
-}

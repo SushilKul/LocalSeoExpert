@@ -7,6 +7,9 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql, gte, lte } from "drizzle-orm";
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export interface IStorage {
   // User methods
@@ -319,3 +322,13 @@ export class DatabaseStorage implements IStorage {
 }
 
 export const storage = new DatabaseStorage();
+
+// Example: Get all users
+export async function getAllUsers() {
+  return prisma.user.findMany();
+}
+
+// Example: Create a business
+export async function createBusiness(data: { name: string; address: string; ownerId: number }) {
+  return prisma.business.create({ data });
+}

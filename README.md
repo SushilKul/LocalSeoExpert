@@ -1,113 +1,103 @@
-# Local SEO Expert
+# LocalSEOExpert
 
-A user-friendly web application for managing local SEO tasks and business locations.
+A lightweight Local SEO and Google Business Profile (GBP) management MVP that enables SMBs and agencies to monitor and manage GBP locations, reviews, and posts, track local keywords, and view aggregated insights.
 
-## Prerequisites
+## Tech Stack
+
+- **Frontend**: React, TypeScript, Vite, TailwindCSS, shadcn/ui
+- **Backend**: Node.js, Express.js, TypeScript
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT
+- **Testing**: Vitest, React Testing Library, Supertest
+
+## Quick Start
+
+### Prerequisites
 
 - Node.js (v18 or higher)
 - PostgreSQL database
 
-## Setup Instructions
+### Environment Variables
+
+Required environment variables:
+- `DATABASE_URL`: PostgreSQL connection string
+- `JWT_SECRET`: Secret for JWT signing
+- `PORT`: Server port (default: 5000)
+- `NODE_ENV`: Environment (development/production)
+
+Optional:
+- `EMAIL_FROM`: Sender email address
+- `EMAIL_SERVICE`: Email service provider
+- `EMAIL_USER`: Email service username
+- `EMAIL_PASSWORD`: Email service password
+
+### Development
 
 1. Clone the repository
-
 2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Configure environment variables:
-- Copy `.env.example` to `.env` in the server directory
-- Update the following variables:
-  ```
-  PORT=5000
-  DATABASE_URL=postgres://user:password@localhost:5432/yourdb
-  JWT_SECRET=your_jwt_secret
-  ```
-
-4. Set up the database:
+3. Set up environment variables:
 ```bash
+cp server/.env.example server/.env
+# Edit server/.env with your database credentials
+```
+
+4. Run database migrations:
 ```bash
-# Create a migration file (if not already created)
-npm run db:generate
-
-# Apply database migrations
-npm run db:migrate
+npm run db:push
 ```
 
-> **Note:**  
-> If you see an error like `Missing script: "db:migrate"`, ensure your `package.json` includes the following scripts under the `"scripts"` section:
-
-```json
-"scripts": {
-  "db:generate": "drizzle-kit generate:pg",
-  "db:migrate": "drizzle-kit push:pg"
-}
+5. Seed the database (optional):
+```bash
+npm run db:seed
 ```
 
-Replace the commands with your actual migration tool if different.
-```
-
-## Development
-
-To run the application in development mode:
-
+6. Start development servers:
 ```bash
 npm run dev
 ```
 
-This will start:
-- Frontend development server on http://localhost:3000
-- Backend API server on http://localhost:5000
+### Testing
 
-## Building for Production
+Run tests with coverage:
+```bash
+npm test
+```
 
-1. Build the application:
+View coverage report:
+```bash
+npm run coverage
+```
+
+### Production Build
+
+Build for production:
 ```bash
 npm run build
 ```
 
-2. Start the production server:
+Start production server:
 ```bash
 npm start
 ```
 
-## Project Structure
+### Docker Development
 
-```
-├── client/           # Frontend React application
-│   ├── src/          # Source files
-│   └── index.html    # HTML entry point
-├── server/           # Backend Express server
-│   ├── routes.ts     # API routes
-│   ├── storage.ts    # Database operations
-│   └── vite.ts       # Vite configuration
-└── shared/           # Shared types and utilities
+Start with Docker Compose:
+```bash
+docker-compose -f docker-compose.dev.yml up
 ```
 
-## Features
+## Deployment
 
-- User authentication and authorization
-- Business location management
-- SEO performance tracking
-- Review management
-- Analytics dashboard
+The application can be deployed to any platform that supports Node.js applications. For cloud deployment:
 
-## Tech Stack
+1. Set up a PostgreSQL database
+2. Configure environment variables
+3. Build and deploy the application
+4. Run migrations
 
-- Frontend: React, Vite, TailwindCSS
-- Backend: Express.js, TypeScript
-- Database: PostgreSQL with Drizzle ORM
-- Authentication: JWT, Passport.js
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
-
-## License
-
-MIT
+See `infra/` directory for example infrastructure as code.

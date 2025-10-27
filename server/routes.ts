@@ -9,7 +9,7 @@ import {
   type User 
 } from "@shared/schema";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET || "postgres_is_awesome";
 
 // Auth middleware
 async function authenticateToken(req: any, res: any, next: any) {
