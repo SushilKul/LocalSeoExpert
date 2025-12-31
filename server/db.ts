@@ -1,59 +1,40 @@
-// Remove all Drizzle and Neon imports
-// import { Pool, neonConfig } from '@neondatabase/serverless';
-// import { drizzle } from 'drizzle-orm/neon-serverless';
-// import ws from "ws";
-// import * as schema from "@shared/schema";
-
-// neonConfig.webSocketConstructor = ws;
-
-// if (!process.env.DATABASE_URL) {
-//   throw new Error(
-//     "DATABASE_URL must be set. Did you forget to provision a database?",
-//   );
-// }
-
-// export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-// export const db = drizzle({ client: pool, schema });
-
-// --- Replace with Prisma setup below ---
-
 import { PrismaClient } from '@prisma/client';
-export const db = new PrismaClient();
-
-const { Pool } = require("pg");
-
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
-
-module.exports = pool;
-
-
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { db, pool } from './db.js';
 import dotenv from 'dotenv';
 
 // Load environment variables
 dotenv.config();
 
-// Run migrations
-async function runMigrations() {
-  console.log('🔄 Running database migrations...');
+// Check for DATABASE_URL
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL must be set in your .env file. Did you forget to provision a database?",
+  );
+}
+
+// Create Prisma client instance
+export const prisma = new PrismaClient();
+
+// Export as db for backward compatibility
+export const db = prisma;
+
+// Initialize database
+export async function initializeDatabase() {
+  console.log('🔄 Connecting to database...');
   
   try {
-    await migrate(db, { migrationsFolder: './drizzle' });
-    console.log('✅ Migrations completed successfully');
+    // Test database connection
+    await prisma.$connect();
+    console.log('✅ Database connection successful');
+    
+    return prisma;
   } catch (error) {
-    console.error('❌ Migration failed:', error);
+    console.error('❌ Database connection failed:', error);
     process.exit(1);
-  } finally {
-    // Close the pool when done
-    await pool.end();
   }
 }
 
-runMigrations();
+// Close database connection
+export async function closeDatabase() {
+  await prisma.$disconnect();
+  console.log('Database connection closed');
+}

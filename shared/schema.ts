@@ -1,17 +1,17 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, varchar, json } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
-import { createInsertSchema } from "prisma-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  email: text("email").notNull().unique(),
-  password: text("password").notNull(),
-  fullName: text("full_name").notNull(),
-  role: text("role").notNull().default("business_owner"), // business_owner, agency_manager
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+// This file now contains Zod schemas for validation
+// The actual database schema is defined in server/prisma/schema.prisma
+
+export const UserSchema = z.object({
+  id: z.number(),
+  username: z.string(),
+  email: z.string().email(),
+  password: z.string(),
+  fullName: z.string(),
+  role: z.enum(["business_owner", "agency_manager"]).default("business_owner"),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export const locations = pgTable("locations", {
