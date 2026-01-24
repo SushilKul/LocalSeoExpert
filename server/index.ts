@@ -13,17 +13,6 @@ const app = express();
 
 // Security middleware
 // (helmet import is commented out; skipping helmet middleware)
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https://*"],
-      connectSrc: ["'self'", "https://*"]
-    }
-  }
-}));
 
 // CORS configuration
 const corsOptions = {

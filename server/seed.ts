@@ -44,7 +44,7 @@ async function seed() {
         phone: faker.phone.number(),
         website: faker.internet.url(),
         status: "verified",
-        rating: new Prisma.Decimal(faker.number.float({ min: 3, max: 5, precision: 0.1 })),
+        rating: new Prisma.Decimal(faker.number.float({ min: 3, max: 5, fractionDigits: 1 })),
         reviewCount: faker.number.int({ min: 0, max: 100 }),
         createdAt: new Date(),
         updatedAt: new Date(),
