@@ -69,7 +69,7 @@ npm test
 
 View coverage report:
 ```bash
-npm run coverage
+npm run coveragenp
 ```
 
 ### Production Build

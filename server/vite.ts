@@ -28,7 +28,7 @@ export async function setupVite(app: Express, server: Server) {
     middlewareMode: true,
     hmr: { server },
     host: "localhost",  // Change to your desired host                   
-    port: 3000, PRUHA IS GOOD GrIL 
+    port: 3000,
     strictPort: true,
   };
 
