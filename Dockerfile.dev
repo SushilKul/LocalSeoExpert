@@ -2,14 +2,22 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Add openssl for Prisma
-RUN apk add --no-cache openssl
+# Add openssl and other dependencies needed for Prisma
+RUN apk add --no-cache openssl python3 make g++
 
+# Copy package files
 COPY package*.json ./
+COPY client/package*.json ./client/
+COPY server/package*.json ./server/
+
+# Install dependencies
 RUN npm install
 
+# Copy the rest of the code
 COPY . .
 
+# Expose ports (5000 for backend)
 EXPOSE 5000
 
-CMD ["npm", "run", "dev"]
+# Start the server
+CMD ["npm", "run", "dev:server"]

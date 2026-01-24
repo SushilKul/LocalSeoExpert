@@ -19,8 +19,9 @@ services:
     depends_on:
       - db
     command: >
-      sh -c "npx prisma generate --schema server/prisma/schema.prisma &&
-             npx prisma db push --schema server/prisma/schema.prisma &&
+      sh -c "npm install &&
+             npx prisma generate &&
+             npx prisma db push &&
              npm run dev:server"
 
   db:
