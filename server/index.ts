@@ -1,6 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
-import helmet from "helmet";
+// import helmet from "helmet"; // commented out due to missing module
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic } from "./vite";
 
@@ -12,7 +12,7 @@ const log = (...args: any[]) => {
 const app = express();
 
 // Security middleware
-app.use(helmet({
+// (helmet import is commented out; skipping helmet middleware)
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],

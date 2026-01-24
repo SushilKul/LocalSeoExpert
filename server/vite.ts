@@ -27,7 +27,7 @@ export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
-    host: "localhost",  // Change to your desired host                   
+    host: '0.0.0.0',
     port: 3000,
     strictPort: true,
   };
