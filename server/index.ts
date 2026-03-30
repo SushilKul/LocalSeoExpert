@@ -1,8 +1,9 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
-// import helmet from "helmet"; // commented out due to missing module
+import helmet from "helmet";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic } from "./vite";
+import { initializeDatabase } from "./db";
 
 const log = (...args: any[]) => {
   // simple file-local logger; replace with a centralized logger if you add one to ./vite
@@ -12,7 +13,9 @@ const log = (...args: any[]) => {
 const app = express();
 
 // Security middleware
-// (helmet import is commented out; skipping helmet middleware)
+app.use(helmet({
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
+}));
 
 // CORS configuration
 const corsOptions = {
@@ -59,6 +62,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Initialize database connection
+  await initializeDatabase();
+
   const server = await registerRoutes(app);
 
   // Global error handler
