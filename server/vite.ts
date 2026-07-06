@@ -5,7 +5,7 @@ import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import { nanoid } from "nanoid";
 import { fileURLToPath } from "url";
-import * as viteConfig from '../vite.config';
+import viteConfig from '../vite.config';
 import { ZapIcon } from "lucide-react";
 const viteLogger = createLogger();
 
@@ -33,7 +33,7 @@ export async function setupVite(app: Express, server: Server) {
   };
 
   const vite = await createViteServer({
-    ...viteConfig,
+    ...viteConfig as any,
     configFile: false,
     customLogger: viteLogger,
     server: serverOptions,

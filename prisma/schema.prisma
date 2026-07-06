@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  username  String     @unique
+  email     String     @unique
+  password  String
+  fullName  String     @map("full_name")
+  role      String     @default("business_owner")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @default(now()) @map("updated_at")
+  locations Location[]
+  posts     Post[]
+  photos    Photo[]
+}
+
+model Location {
+  id           Int        @id @default(autoincrement())
+  userId       Int        @map("user_id")
+  user         User       @relation(fields: [userId], references: [id])
+  name         String
+  address      String
+  phone        String?
+  website      String?
+  category     String?
+  description  String?
+  hours        Json?
+  gmbPlaceId   String?    @map("gmb_place_id")
+  gmbAccountId String?    @map("gmb_account_id")
+  status       String     @default("pending")
+  rating       Decimal?   @db.Decimal(3, 2)
+  reviewCount  Int?       @default(0) @map("review_count")
+  totalViews   Int?       @default(0) @map("total_views")
+  totalCalls   Int?       @default(0) @map("total_calls")
+  totalClicks  Int?       @default(0) @map("total_clicks")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @default(now()) @map("updated_at")
+  reviews      Review[]
+  posts        Post[]
+  photos       Photo[]
+  keywords     Keyword[]
+  analytics    Analytics[]
+}
+
+model Review {
+  id           Int       @id @default(autoincrement())
+  locationId   Int       @map("location_id")
+  location     Location  @relation(fields: [locationId], references: [id])
+  gmbReviewId  String?   @unique @map("gmb_review_id")
+  customerName String    @map("customer_name")
+  rating       Int
+  comment      String?
+  reply        String?
+  repliedAt    DateTime? @map("replied_at")
+  sentiment    String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+}
+
+model Post {
+  id           Int       @id @default(autoincrement())
+  locationId   Int       @map("location_id")
+  location     Location  @relation(fields: [locationId], references: [id])
+  userId       Int       @map("user_id")
+  user         User      @relation(fields: [userId], references: [id])
+  type         String
+  title        String
+  content      String
+  imageUrl     String?   @map("image_url")
+  callToAction String?   @map("call_to_action")
+  actionUrl    String?   @map("action_url")
+  scheduledAt  DateTime? @map("scheduled_at")
+  publishedAt  DateTime? @map("published_at")
+  status       String    @default("draft")
+  views        Int       @default(0)
+  clicks       Int       @default(0)
+  createdAt    DateTime  @default(now()) @map("created_at")
+}
+
+model Photo {
+  id            Int      @id @default(autoincrement())
+  locationId    Int      @map("location_id")
+  location      Location @relation(fields: [locationId], references: [id])
+  userId        Int      @map("user_id")
+  user          User     @relation(fields: [userId], references: [id])
+  url           String
+  caption       String?
+  category      String?
+  isProfilePhoto Boolean  @default(false) @map("is_profile_photo")
+  uploadedAt    DateTime @default(now()) @map("uploaded_at")
+}
+
+model Keyword {
+  id           Int       @id @default(autoincrement())
+  locationId   Int       @map("location_id")
+  location     Location  @relation(fields: [locationId], references: [id])
+  keyword      String
+  currentRank  Int?      @map("current_rank")
+  previousRank Int?      @map("previous_rank")
+  searchVolume Int?      @map("search_volume")
+  competition  String?
+  lastChecked  DateTime? @map("last_checked")
+  createdAt    DateTime  @default(now()) @map("created_at")
+}
+
+model Analytics {
+  id         Int      @id @default(autoincrement())
+  locationId Int      @map("location_id")
+  location   Location @relation(fields: [locationId], references: [id])
+  date       DateTime
+  views      Int      @default(0)
+  searches   Int      @default(0)
+  calls      Int      @default(0)
+  directions Int      @default(0)
+}
